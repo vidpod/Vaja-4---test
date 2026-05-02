@@ -20,19 +20,21 @@ jobs:
       - name: Preveri test datoteko
         run: |
           rm -f napaka.txt
-
-          if [ ! -f "main.py" ]; then
-            echo "NAPAKA: main.py ne obstaja" >> napaka.txt
-            exit 1
+  
+          if [ ! -f "main_test.py" ]; then
+            echo "NAPAKA: main_test.py ne obstaja" > napaka.txt
+          else
+            echo "" > napaka.txt
           fi
+  
+          cat napaka.txt || true
 
-      - name: Upload artifact (napaka.txt)
+      - name: Upload artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: napaka
           path: napaka.txt
-
-
 # =====================================================
 # JOB 2: izvajanje testov (odvisno od prvega joba)
 # =====================================================

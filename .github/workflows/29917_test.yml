@@ -21,8 +21,8 @@ jobs:
         run: |
           rm -f napaka.txt
 
-          if [ ! -f "test_calculator.py" ]; then
-            echo "NAPAKA: test_calculator.py ne obstaja" >> napaka.txt
+          if [ ! -f "main.py" ]; then
+            echo "NAPAKA: main.py ne obstaja" >> napaka.txt
             exit 1
           fi
 

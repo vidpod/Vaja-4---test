@@ -24,7 +24,7 @@ jobs:
           if [ ! -f "main_test.py" ]; then
             echo "NAPAKA: main_test.py ne obstaja" > napaka.txt
           else
-            echo "" > napaka.txt
+            echo "OK" > napaka.txt
           fi
   
           cat napaka.txt || true
@@ -57,11 +57,11 @@ jobs:
 
       - name: Preveri napake iz prvega joba
         run: |
-          if [ -s napaka.txt ]; then
-            echo "Napake iz check joba:"
-            cat napaka.txt
-            exit 1
-          fi
+            if grep -q "NAPAKA" napaka.txt; then
+              echo "Napake iz check joba:"
+              cat napaka.txt
+              exit 1
+            fi
 
       - name: Setup Python
         uses: actions/setup-python@v5

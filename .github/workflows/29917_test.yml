@@ -7,9 +7,9 @@ on:
 
 jobs:
 
-# =====================================================
-# JOB 1: preveri obstoj testov + zabeleži napake
-# =====================================================
+  # =====================================================
+  # JOB 1: preveri obstoj testov + zabeleži napake
+  # =====================================================
   check_tests:
     runs-on: self-hosted
 
@@ -21,7 +21,7 @@ jobs:
         run: |
           rm -f napaka.txt
           touch napaka.txt
-      
+
           if [ ! -f "main_test.py" ]; then
             echo "NAPAKA: main_test.py ne obstaja" >> napaka.txt
           fi
@@ -32,41 +32,43 @@ jobs:
         with:
           name: napaka
           path: napaka.txt
-# =====================================================
-# JOB 2: izvajanje testov (odvisno od prvega joba)
-# =====================================================
-run_tests:
-  runs-on: self-hosted
-  needs: check_tests
 
-  strategy:
-    matrix:
-      python-version: [3.10, 3.11, 3.12]
 
-  steps:
-    - name: Checkout kode
-      uses: actions/checkout@v4
+  # =====================================================
+  # JOB 2: izvajanje testov (odvisno od prvega joba)
+  # =====================================================
+  run_tests:
+    runs-on: self-hosted
+    needs: check_tests
 
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: napaka
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11, 3.12]
 
-    - name: Preveri napake iz prvega joba
-      run: |
-        if grep -q "NAPAKA" napaka.txt; then
-          echo "Napake iz check joba:"
-          cat napaka.txt
-          exit 1
-        fi
+    steps:
+      - name: Checkout kode
+        uses: actions/checkout@v4
 
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: napaka
 
-    - name: Namesti pytest
-      run: pip install pytest
+      - name: Preveri napake iz prvega joba
+        run: |
+          if grep -q "NAPAKA" napaka.txt; then
+            echo "Napake iz check joba:"
+            cat napaka.txt
+            exit 1
+          fi
 
-    - name: Zaženi teste
-      run: pytest -v
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Namesti pytest
+        run: pip install pytest
+
+      - name: Zaženi teste
+        run: pytest -v

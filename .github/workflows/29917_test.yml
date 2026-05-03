@@ -1,50 +1,72 @@
-name: Tests
+name: 29917_test
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  check-tests:
+
+# =====================================================
+# JOB 1: preveri obstoj testov + zabeleži napake
+# =====================================================
+  check_tests:
     runs-on: self-hosted
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout kode
+        uses: actions/checkout@v4
 
-      - name: Check tests
+      - name: Preveri test datoteko
         run: |
-          if [ ! -f test.sh ]; then
-            echo "Ni testov" 2> napaka.txt
-          else
-            touch napaka.txt
+          rm -f napaka.txt
+          touch napaka.txt
+      
+          if [ ! -f "main_test.py" ]; then
+            echo "NAPAKA: main_test.py ne obstaja" >> napaka.txt
           fi
 
       - name: Upload artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: napaka
           path: napaka.txt
-
-  run-tests:
+# =====================================================
+# JOB 2: izvajanje testov (odvisno od prvega joba)
+# =====================================================
+  run_tests:
     runs-on: self-hosted
-    needs: check-tests
+    needs: check_tests
+
+    strategy:
+      matrix:
+        python-version: [3.11]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout kode
+        uses: actions/checkout@v4
 
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: napaka
 
-      - name: Check napaka.txt
+      - name: Preveri napake iz prvega joba
         run: |
-          if [ -s napaka.txt ]; then
-            echo "Napaka obstaja"
-            exit 1
-          fi
+            if grep -q "NAPAKA" napaka.txt; then
+              echo "Napake iz check joba:"
+              cat napaka.txt
+              exit 1
+            fi
 
-      - name: Run tests
-        run: |
-          chmod +x test.sh
-          ./test.sh
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Namesti pytest
+        run: pip install pytest
+
+      - name: Zaženi teste
+        run: pytest -v

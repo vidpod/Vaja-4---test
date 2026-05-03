@@ -1,8 +1,8 @@
-name: Deploy
+name: 29917_deploy
 
 on:
   workflow_run:
-    workflows: ["Tests"]
+    workflows: ["29917_test"]
     types:
       - completed
 
@@ -11,18 +11,15 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
 
-    strategy:
-      matrix:
-        version: [1.0]
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build Docker
-        run: docker build -t yourname/app:${{ matrix.version }} .
+      - name: Docker login
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Login DockerHub
-        run: echo "${{ secrets.DOCKER_PASS }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+      - name: Build
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/calculator:latest .
 
       - name: Push
-        run: docker push yourname/app:${{ matrix.version }}
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/calculator:latest

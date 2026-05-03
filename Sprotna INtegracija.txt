@@ -1,0 +1,3 @@
+https://github.com/vidpod/Vaja-4---test
+
+https://hub.docker.com/repository/docker/vidpod/calculator

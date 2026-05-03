@@ -70,5 +70,5 @@ jobs:
       - name: Namesti pytest
         run: pip install pytest
 
-      - name: Zaženi teste
+      - name: Zaženi teste (Python ${{ matrix.python-version }})
         run: pytest -v

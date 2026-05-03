@@ -20,8 +20,9 @@ jobs:
       - name: Preveri test datoteko
         run: |
           rm -f napaka.txt
+      
           if [ ! -f "main_test.py" ]; then
-            echo "Test file ne obstaja" 1>&2
+            echo "NAPAKA: main_test.py ne obstaja" 1>&2
           fi 2> napaka.txt
 
       - name: Upload artifact
